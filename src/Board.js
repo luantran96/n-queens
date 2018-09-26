@@ -104,17 +104,14 @@
       var hasPieceExistedOnThisRow = {};
 
       var boardLength = this.get('n');
-      for(var row = 0; row < boardLength; row++) {
-        for(var column = 0; column < boardLength; column++) {
-          var currentValueAtPosition = this.get(row)[column];
-          if(currentValueAtPosition && hasPieceExistedOnThisRow[row] === true) {
+
+      for (var i = 0; i < boardLength; i++) {
+        if(this.hasRowConflictAt(i)){
             return true;
-          } else if(currentValueAtPosition && hasPieceExistedOnThisRow[row] === undefined) {
-            hasPieceExistedOnThisRow[row] = true;
           }
         }
-      }
-      return false; 
+
+        return false; 
     },
 
 
@@ -147,16 +144,13 @@
       var hasPieceExistedOnThisColumn = {};
 
       var boardLength = this.get('n');
-      for(var column = 0; column < boardLength; column++) {
-        for(var row = 0; row < boardLength; row++) {
-          var currentValueAtPosition = this.get(row)[column];
-          if(currentValueAtPosition && hasPieceExistedOnThisColumn[column] === true) {
-            return true;
-          } else if(currentValueAtPosition && hasPieceExistedOnThisColumn[column] === undefined) {
-            hasPieceExistedOnThisColumn[column] = true;
-          }
+      
+      for (var i = 0; i < boardLength; i++) {
+        if (this.hasColConflictAt(i)) {
+          return true;
         }
       }
+
       return false;
     },
 
@@ -166,28 +160,40 @@
     // --------------------------------------------------------------
     //
     // test if a specific major diagonal on this board contains a conflict
-    hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow, rowIndex) {
+    hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow) {
 
-    var boardLength = this.get('n');
-    var hasMajorDiagonalConflict = false;
-    
-    for(var row = rowIndex; row < boardLength; row++){
-      var currentValueAtPosition = this.get(row)[majorDiagonalColumnIndexAtFirstRow];
+      var boardLength = this.get('n');
+      var hasMajorDiagonalConflict = false;
+      var rowIndex;
+      var colIndex;
 
-      if(currentValueAtPosition && hasMajorDiagonalConflict){
-        return true;
-      }else if(currentValueAtPosition && !hasMajorDiagonalConflict){
-        hasMajorDiagonalConflict = true;
+      //assess firstRowColumnIndex, jump row index to first valid
+      if (majorDiagonalColumnIndexAtFirstRow < 0) {
+        rowIndex = -majorDiagonalColumnIndexAtFirstRow;
+        colIndex = 0;
+      } else {
+        rowIndex = 0;
+        colIndex = majorDiagonalColumnIndexAtFirstRow;
       }
 
-        if(boardLength > majorDiagonalColumnIndexAtFirstRow){
-          majorDiagonalColumnIndexAtFirstRow += 1;
-        }else{
+      for (;rowIndex < boardLength; rowIndex++) {
+        var currentValueAtPosition = this.get(rowIndex)[colIndex];
+
+        if(currentValueAtPosition && hasMajorDiagonalConflict){
+          return true;
+        } else if(currentValueAtPosition && !hasMajorDiagonalConflict) {
+          hasMajorDiagonalConflict = true;
+        }
+        
+        //test whether next position will be outside of table extents
+        if (boardLength > colIndex){
+          colIndex += 1;
+        } else {
           break;
         }
-    }
+      }
 
-    return false; 
+      return false; 
     },
 
     // test if any major diagonals on this board contain conflicts
@@ -195,18 +201,15 @@
 
       var boardLength = this.get('n');
 
-    for(var row = 0; row < boardLength; row++){
-      for(var col = 0; col < boardLength; col++) {
-
-        if(this.hasMajorDiagonalConflictAt(col,row)){
-          return true;
+      for(var row = 0; row < boardLength; row++){
+        for(var col = 0; col < boardLength; col++) {
+          var firstRowColumnIndex = this._getFirstRowColumnIndexForMajorDiagonalOn(row, col);
+          if(this.hasMajorDiagonalConflictAt(firstRowColumnIndex)){
+            return true;
+          }
         }
       }
-    }
-
-
-
-      return false; // fixme
+      return false; 
     },
 
 
@@ -216,11 +219,54 @@
     //
     // test if a specific minor diagonal on this board contains a conflict
     hasMinorDiagonalConflictAt: function(minorDiagonalColumnIndexAtFirstRow) {
-      return false; // fixme
+
+      var boardLength = this.get('n');
+      var hasMinorDiagonalConflict = false;
+      var rowIndex;
+      var colIndex;
+
+      //assess firstRowColumnIndex, jump row index to first valid
+      if (minorDiagonalColumnIndexAtFirstRow > boardLength - 1) {
+        rowIndex = minorDiagonalColumnIndexAtFirstRow - (boardLength - 1);
+        colIndex = boardLength - 1;
+      } else {
+        rowIndex = 0;
+        colIndex = minorDiagonalColumnIndexAtFirstRow;
+      }
+
+      for (;rowIndex < boardLength; rowIndex++) {
+        var currentValueAtPosition = this.get(rowIndex)[colIndex];
+
+        if (currentValueAtPosition && hasMinorDiagonalConflict) {
+          return true;
+        } else if (currentValueAtPosition && !hasMinorDiagonalConflict) {
+          hasMinorDiagonalConflict = true;
+        }
+        
+        //test whether next position will be outside of table extents
+        if (0 < colIndex) {
+          colIndex -= 1;
+        } else {
+          break;
+        }
+      }
+
+      return false;
+      ß
     },
 
     // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function() {
+      var boardLength = this.get('n');
+
+      for(var row = 0; row < boardLength; row++){
+        for(var col = 0; col < boardLength; col++) {
+          var firstRowColumnIndex = this._getFirstRowColumnIndexForMinorDiagonalOn(row, col);
+          if(this.hasMinorDiagonalConflictAt(firstRowColumnIndex)){
+            return true;
+          }
+        }
+      }
       return false; // fixme
     }
 
