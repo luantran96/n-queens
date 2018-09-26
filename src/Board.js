@@ -78,12 +78,42 @@
     // --------------------------------------------------------------
     //
     // test if a specific row on this board contains a conflict
-    hasRowConflictAt: function(rowIndex) {
-      return false; // fixme
+    hasRowConflictAt: function(rowIndex) {  
+
+      //debugger;
+
+      var boardLength = this.get('n');
+      var hasPieceExistedOnThisRow = false;
+
+        for (var column = 0; column < boardLength; column++) {
+          var currentValueAtPosition = this.get(rowIndex)[column];
+
+          if (currentValueAtPosition && hasPieceExistedOnThisRow) {
+            return true;
+          }else if (currentValueAtPosition && !hasPieceExistedOnThisRow) {
+            hasPieceExistedOnThisRow = true;
+          }
+        }
+
+      return false; 
     },
 
     // test if any rows on this board contain conflicts
     hasAnyRowConflicts: function() {
+      //debugger;
+      var hasPieceExistedOnThisRow = {};
+
+      var boardLength = this.get('n');
+      for(var row = 0; row < boardLength; row++) {
+        for(var column = 0; column < boardLength; column++) {
+          var currentValueAtPosition = this.get(row)[column];
+          if(currentValueAtPosition && hasPieceExistedOnThisRow[row] === true) {
+            return true;
+          } else if(currentValueAtPosition && hasPieceExistedOnThisRow[row] === undefined) {
+            hasPieceExistedOnThisRow[row] = true;
+          }
+        }
+      }
       return false; // fixme
     },
 
@@ -94,6 +124,7 @@
     //
     // test if a specific column on this board contains a conflict
     hasColConflictAt: function(colIndex) {
+
       return false; // fixme
     },
 
