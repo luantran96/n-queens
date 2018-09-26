@@ -114,7 +114,7 @@
           }
         }
       }
-      return false; // fixme
+      return false; 
     },
 
 
@@ -125,12 +125,39 @@
     // test if a specific column on this board contains a conflict
     hasColConflictAt: function(colIndex) {
 
-      return false; // fixme
+      var boardLength = this.get('n');
+      var hasPieceExistedOnThisColumn = false;
+
+        for (var row = 0; row < boardLength; row++) {
+          var currentValueAtPosition = this.get(row)[colIndex];
+
+          if (currentValueAtPosition && hasPieceExistedOnThisColumn) {
+            return true;
+          }else if (currentValueAtPosition && !hasPieceExistedOnThisColumn) {
+            hasPieceExistedOnThisColumn = true;
+          }
+        }
+
+      return false; 
     },
 
     // test if any columns on this board contain conflicts
     hasAnyColConflicts: function() {
-      return false; // fixme
+
+      var hasPieceExistedOnThisColumn = {};
+
+      var boardLength = this.get('n');
+      for(var column = 0; column < boardLength; column++) {
+        for(var row = 0; row < boardLength; row++) {
+          var currentValueAtPosition = this.get(row)[column];
+          if(currentValueAtPosition && hasPieceExistedOnThisColumn[column] === true) {
+            return true;
+          } else if(currentValueAtPosition && hasPieceExistedOnThisColumn[column] === undefined) {
+            hasPieceExistedOnThisColumn[column] = true;
+          }
+        }
+      }
+      return false;
     },
 
 
