@@ -16,8 +16,56 @@
 
 
 window.findNRooksSolution = function(n) {
-  var solution = undefined; //fixme
 
+  var solution = []; //fixme
+  
+  // Check this
+  var board = new Board({'n':n});
+  var startingRowIndex = 0;
+  var startingColIndex = 0;
+
+  var traverseTree = function(remainingRooks,rowIndex,colIndex) {
+    
+    if (remainingRooks === 0) {
+      return board.rows();
+    }
+    
+    //if no conflict at coordinates
+    board.togglePiece(rowIndex, colIndex);
+    if (!board.hasColConflictAt(colIndex) && !board.hasRowConflictAt(rowIndex)) {
+      //place rook
+      
+      //jump rowIndex +  1, set colIndex to 0
+      //other optimizations
+ 
+      //loop through possible decisions recursively
+      return traverseTree(remainingRooks - 1, rowIndex + 1, 0);
+
+    } else {
+
+      board.togglePiece(rowIndex, colIndex);
+
+      if (colIndex === (n - 1)) {
+        rowIndex = rowIndex + 1;
+        colIndex = 0;
+      } else {
+        colIndex += 1;
+      }
+      return traverseTree(remainingRooks, rowIndex, colIndex);
+    }
+      
+    
+    
+    //if exhust all branches and n rooks have not been placed, 
+    
+    //reset board
+      //advance startingRowIndex and/or startingColIndex
+      //restart recursive loop from new root
+    
+  }
+  
+  solution = traverseTree(n,startingRowIndex,startingColIndex);
+  
   console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
   return solution;
 };
