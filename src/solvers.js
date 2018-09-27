@@ -45,6 +45,7 @@ window.findNRooksSolution = function(n) {
       } else {
         colIndex += 1;
       }
+      
       return traverseTree(remainingRooks, rowIndex, colIndex);
     }
     
@@ -87,39 +88,63 @@ window.countNRooksSolutions = function(n) {
   return solutionCount;
 };
 
+  var makeEmptyMatrix = function(n) {
+    return _(_.range(n)).map(function() {
+      return _(_.range(n)).map(function() {
+        return 0;
+      });
+    });
+  };
+
+
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
 
-  var solution; //fixme
   var firstRowColumnIndex1;
   var firstRowColumnIndex2;
   // Check this
   var board = new Board({'n':n});
+  var solutionFound = false;
   var traverseTree = function(remainingRooks,rowIndex) {
+  
+  // if(n === 8) debugger;
 
-    if(remainingRooks === 0 || rowIndex > n){
-      
+    if(remainingRooks === 0){
+      solutionFound = true;
       return board.rows();
+
+    }else if(rowIndex > n){
+      return;
     }
 
-    for (var i = 0; i < n ; i++) {
-      board.togglePiece(rowIndex,i);
-      firstRowColumnIndex1 = board._getFirstRowColumnIndexForMajorDiagonalOn(rowIndex, i);
-      firstRowColumnIndex2 = board._getFirstRowColumnIndexForMinorDiagonalOn(rowIndex, i);
+      for (var i = 0; i < n ; i++) {
+        board.togglePiece(rowIndex,i);
+        firstRowColumnIndex1 = board._getFirstRowColumnIndexForMajorDiagonalOn(rowIndex, i);
+        firstRowColumnIndex2 = board._getFirstRowColumnIndexForMinorDiagonalOn(rowIndex, i);
 
-      if (!board.hasRowConflictAt(rowIndex) && !board.hasColConflictAt(i) && !board.hasMajorDiagonalConflictAt(firstRowColumnIndex1) && !board.hasMinorDiagonalConflictAt(firstRowColumnIndex2)) {
-        return traverseTree(remainingRooks - 1, rowIndex + 1);
+        if (!board.hasAnyQueenConflictsOn(rowIndex,i) && !solutionFound) {  // If found a spot to place queen, keep traversing
+          var tempBoard = traverseTree(remainingRooks - 1, rowIndex + 1);
+          if (solutionFound) {
+            return tempBoard;
+          }
+        }
+        board.togglePiece(rowIndex,i);
+  
       }
 
-      board.togglePiece(rowIndex,i);
-    }
+      return;
   }
   
   solution = traverseTree(n,0);
-  
-  console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
-  return solution;
+  //debugger;
+  if (solution) {
+    console.log('Solution find for ' + n + ' queens:', JSON.stringify(solution));
+    return solution;
+  } else {
+    return board.rows();
+  }
 
+ 
 };
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
