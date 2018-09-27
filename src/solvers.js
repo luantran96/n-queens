@@ -33,12 +33,6 @@ window.findNRooksSolution = function(n) {
     //if no conflict at coordinates
     board.togglePiece(rowIndex, colIndex);
     if (!board.hasColConflictAt(colIndex) && !board.hasRowConflictAt(rowIndex)) {
-      //place rook
-      
-      //jump rowIndex +  1, set colIndex to 0
-      //other optimizations
- 
-      //loop through possible decisions recursively
       return traverseTree(remainingRooks - 1, rowIndex + 1, 0);
 
     } else {
@@ -53,14 +47,6 @@ window.findNRooksSolution = function(n) {
       }
       return traverseTree(remainingRooks, rowIndex, colIndex);
     }
-      
-    
-    
-    //if exhust all branches and n rooks have not been placed, 
-    
-    //reset board
-      //advance startingRowIndex and/or startingColIndex
-      //restart recursive loop from new root
     
   }
   
@@ -72,24 +58,100 @@ window.findNRooksSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  var solutionCount = undefined; //fixme
 
-  console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
+  var solutionCount = 0; //fixme
+  
+  // Check this
+  var board = new Board({'n':n});
+
+  var traverseTree = function(remainingRooks,rowIndex) {
+
+    if(remainingRooks === 0 || rowIndex > n){
+      solutionCount += 1;
+      return;
+    }
+
+    for (var i = 0; i < n ; i++) {
+      board.togglePiece(rowIndex,i);
+      if (!board.hasRowConflictAt(rowIndex) && !board.hasColConflictAt(i)) {
+        traverseTree(remainingRooks - 1, rowIndex + 1);
+      }
+
+      board.togglePiece(rowIndex,i);
+    }
+  }
+  
+  traverseTree(n,0);
+  
+  console.log('Solution count for ' + n + ' rooks:', JSON.stringify(solutionCount));
   return solutionCount;
 };
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
-  var solution = undefined; //fixme
 
-  console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
+  var solution; //fixme
+  var firstRowColumnIndex1;
+  var firstRowColumnIndex2;
+  // Check this
+  var board = new Board({'n':n});
+  var traverseTree = function(remainingRooks,rowIndex) {
+
+    if(remainingRooks === 0 || rowIndex > n){
+      
+      return board.rows();
+    }
+
+    for (var i = 0; i < n ; i++) {
+      board.togglePiece(rowIndex,i);
+      firstRowColumnIndex1 = board._getFirstRowColumnIndexForMajorDiagonalOn(rowIndex, i);
+      firstRowColumnIndex2 = board._getFirstRowColumnIndexForMinorDiagonalOn(rowIndex, i);
+
+      if (!board.hasRowConflictAt(rowIndex) && !board.hasColConflictAt(i) && !board.hasMajorDiagonalConflictAt(firstRowColumnIndex1) && !board.hasMinorDiagonalConflictAt(firstRowColumnIndex2)) {
+        return traverseTree(remainingRooks - 1, rowIndex + 1);
+      }
+
+      board.togglePiece(rowIndex,i);
+    }
+  }
+  
+  solution = traverseTree(n,0);
+  
+  console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
   return solution;
+
 };
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n) {
-  var solutionCount = undefined; //fixme
 
-  console.log('Number of solutions for ' + n + ' queens:', solutionCount);
+  var solutionCount = 0; //fixme
+  var firstRowColumnIndex1;
+  var firstRowColumnIndex2;
+  // Check this
+  var board = new Board({'n':n});
+  var traverseTree = function(remainingRooks,rowIndex) {
+
+    if(remainingRooks === 0 || rowIndex > n){
+      solutionCount += 1;
+      return;
+    }
+
+    for (var i = 0; i < n ; i++) {
+      board.togglePiece(rowIndex,i);
+      firstRowColumnIndex1 = board._getFirstRowColumnIndexForMajorDiagonalOn(rowIndex, i);
+      firstRowColumnIndex2 = board._getFirstRowColumnIndexForMinorDiagonalOn(rowIndex, i);
+
+      if (!board.hasRowConflictAt(rowIndex) && !board.hasColConflictAt(i) && !board.hasMajorDiagonalConflictAt(firstRowColumnIndex1) && !board.hasMinorDiagonalConflictAt(firstRowColumnIndex2)) {
+        traverseTree(remainingRooks - 1, rowIndex + 1);
+      }
+
+      board.togglePiece(rowIndex,i);
+    }
+  }
+  
+  traverseTree(n,0);
+  
+  console.log('Solution count for ' + n + ' rooks:', JSON.stringify(solutionCount));
   return solutionCount;
 };
